@@ -8,6 +8,7 @@
   "engines": {
     "vscode": "^1.92.0"
   },
+  "publisher": "mallardduck",
   "author": {
     "name": "MallardDuck",
     "url": "https://github.com/mallardduck/"
