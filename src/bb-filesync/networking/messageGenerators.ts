@@ -4,8 +4,6 @@ import type { FileEvent, Message } from "../interfaces.js";
 let messageCounter = 0;
 
 export function fileChangeEventToMsg(fileEvent: FileEvent): Message {
-    console.log("msg Generator fileChangeEventToMsg");
-    console.log(fileEvent)
     return {
         jsonrpc: "2.0",
         method: "pushFile",
@@ -51,7 +49,6 @@ export function requestFilenames(): Message {
 
 
 function addLeadingSlash(path: string): string {
-    console.log(path);
     const firstSlashIndex = path.indexOf("/");
     if (firstSlashIndex !== 0) return `/${path}`;
     else return path;

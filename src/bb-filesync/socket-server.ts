@@ -27,7 +27,6 @@ export function startWebSocketServer() {
 
     // Add a handler for when a connection to a game is made.
     signalInstance.on(EventType.ConnectionMade, () => {
-        console.log("Connection made!");
 
         if (filesyncConfig.definitionFileSync)
             tryFetchDefinitionFile();
@@ -61,7 +60,6 @@ export function startWebSocketServer() {
     // Add a handler for removed files, if allowed.
     if (filesyncConfig.allowDeletingFiles) {
         signalInstance.on(EventType.FileDeleted, function(fileEvent: FileEvent) {
-            console.log('socket delete', fileEvent);
             signalInstance.emit(EventType.MessageSend, fileRemovalEventToMsg(fileEvent))
         });
     }

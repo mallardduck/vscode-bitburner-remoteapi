@@ -29,7 +29,6 @@ export function setupSocket(signaller: Signal) {
 
 
         function errorHandle(err: Error) {
-            console.log("errors fam...")
             console.error(err)
         }
         ws.on('error', errorHandle);

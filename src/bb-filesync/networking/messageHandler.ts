@@ -5,9 +5,11 @@ import { resolve } from "node:path";
 import { messageTracker } from "./messageTracker.js";
 import { Message } from "../interfaces.js";
 import { Signal } from "../../signals-ts/index.js";
-import { getWatchedFileStats } from "../file-watcher.js";
+import { createFileEventFromPath, getWatchedFileStats } from "../file-watcher.js";
 import { getSanitizedUserConfig } from "../../lib/config.js";
 import { primaryWorkspaceRoot } from "../../lib/paths.js";
+import { EventType } from "../eventTypes.js";
+import { fileChangeEventToMsg } from "./messageGenerators.js";
 
 function deserialize(data: RawData): Message {
     const msg = JSON.parse(data.toString());
@@ -36,45 +38,35 @@ export function messageHandler(signaller: Signal, data: RawData) {
     try {
         incoming = deserialize(data);
     } catch (err) {
-        if (err instanceof Error) return console.log(err.message);
+        if (err instanceof Error) return console.error(err.message);
         else throw err;
     }
 
     switch (incoming.method) {
         case "getDefinitionFile":
-            if (typeof incoming.result !== "string") return console.log("Malformed data received.");
+            if (typeof incoming.result !== "string") return console.error("Malformed data received.");
 
             let definitionFilePath = getSanitizedUserConfig().filewatchConfig.definitionLocation;
             if (definitionFilePath.indexOf('.') === 0 && definitionFilePath.indexOf('/') === 1)
                 definitionFilePath = definitionFilePath.slice(1);
 
             const resolvedPath = resolve(primaryWorkspaceRoot() + definitionFilePath)
-            console.log(
-                "getDefinitionFile",
-                resolvedPath
-            )
-
             try {
                 writeFileSync(resolvedPath, incoming.result)
             } catch (err) {
-                if (err) return console.log(err);
+                if (err) return console.error(err);
             }
 
             break;
         case "getFileNames": {
-            console.log("getFileNames")
             if (!Array.isArray(incoming.result) || !isStringArray(incoming.result))
-                return console.log("Malformed data received.");
+                return console.error("Malformed data received.");
 
             const gameFiles = incoming.result.map((file: string) => removeLeadingSlash(file));
-            console.log(
-                gameFiles
-            );
 
             getWatchedFileStats().forEach((stats: Stats, fileName: string, map) => {
                 if (!stats.isDirectory() && !gameFiles.includes(fileName))
-                    // signaller.emit(EventType.MessageSend, fileChangeEventToMsg({ gamePath: fileName }));
-                    console.log("butts");
+                    signaller.emit(EventType.MessageSend, fileChangeEventToMsg(createFileEventFromPath(fileName)));
             });
         }
     }

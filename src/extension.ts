@@ -21,7 +21,6 @@ export async function activate(context: vscode.ExtensionContext) {
     syncAutoStart = sanitizeUserConfig();
 
     if (syncAutoStart) {
-        console.log('Autostart...', syncAutoStart)
         startSyncServer();
     }
 
@@ -82,7 +81,6 @@ export async function activate(context: vscode.ExtensionContext) {
             }
 
             showToast('Pushing All Watched Files To The Game');
-            console.log(Array.from(getWatchedFilesList()))
 
             const watchedArray = Array.from(getWatchedFilesList());
             for(let fsIdx in watchedArray) {
@@ -119,6 +117,5 @@ export async function activate(context: vscode.ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export async function deactivate() {
-    console.log("Deactivating BitburnerExt and stopping sync server...")
     stopSyncServer();
 }

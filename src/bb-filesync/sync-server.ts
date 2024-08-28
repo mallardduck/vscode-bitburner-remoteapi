@@ -16,12 +16,11 @@ export function isSyncServerRunning() {
 export function startSyncServer() {
     if (syncServerRunning) {
         // TOOD: sort out if this needs to actually handle something
-        console.log('Sorry, BitBurner sync server alread running...')
+        showToast('Sorry, BitBurner sync server alread running...')
         return;
     }
 
     // Placeholder for WebSocket server stop logic.
-    console.log('Starting Bitburner Sync server...');
     initFileWatcher();
     startWebSocketServer();
     syncServerRunning = true;
@@ -39,8 +38,6 @@ export function startSyncServer() {
 }
 
 export function stopSyncServer() {
-    // Placeholder for WebSocket server stop logic.
-    console.log('Stopping Bitburner Sync server...');
     // Stop server if running...
     if (syncServerRunning || globalWebSocketServer !== undefined || globalWebsocketServerIsAlive || isFileWatcherRunning()) {
         showToast('File Watcher Disabled');
@@ -56,13 +53,10 @@ export function stopSyncServer() {
 }
 
 export function refreshSyncConfig() {
-    // Placeholder for WebSocket server stop logic.
-    console.log('Refreshing Config...');
     // Reload configs..
     sanitizeUserConfig();
     // Stop server if running...
     if (syncServerRunning) {
-        console.log('...and then Restarting Bitburner Sync server...')
         stopSyncServer();
         // restart server if was running...
         startSyncServer();

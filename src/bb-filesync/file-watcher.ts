@@ -88,7 +88,6 @@ export function createFileEventFromPath(fullPath: string|vscode.Uri): FileEvent 
     else
         uriIn = fullPath
 
-    console.log(fullPath, uriIn)
     return {
         realPath: fullPath.toString(),
         gamePath: realPcToGamePcPath(uriIn),

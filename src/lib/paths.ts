@@ -25,7 +25,7 @@ export function baseWatchPath() {
             mkdirSync(resolvedPath, { recursive: true });
         } catch (err) {
             if (isError(err) && err.code !== "EEXIST") {
-                console.log(`Failed to create watch folder '${resolvedPath}' (${err.code})`);
+                console.error(`Failed to create watch folder '${resolvedPath}' (${err.code})`);
                 throw err;
             }
         }
