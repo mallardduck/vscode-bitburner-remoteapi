@@ -20,9 +20,9 @@ let syncAutoStart: boolean = false;
 export async function activate(context: vscode.ExtensionContext) {
     syncAutoStart = sanitizeUserConfig();
 
-    if (syncAutoStart) {
+    if (syncAutoStart)
         startSyncServer();
-    }
+
 
     const configChangeListener = vscode.workspace.onDidChangeConfiguration(() => {
         refreshSyncConfig();
