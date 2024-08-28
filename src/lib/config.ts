@@ -1,10 +1,6 @@
 import * as vscode from 'vscode';
 import { showToast, ToastType, } from "./ui";
 import { SanitizedUserConfig } from './types';
-import { primaryWorkspaceRoot } from './paths';
-import { resolve } from 'path';
-import { existsSync, mkdirSync, realpathSync } from 'node:fs';
-import { isError } from './err';
 
 function baseExtensionConfig(): vscode.WorkspaceConfiguration {
     return vscode.workspace.getConfiguration(`ext-bitburner-remoteapi`);
@@ -51,20 +47,16 @@ export function sanitizeUserConfig(): boolean {
 
     globalSanitizedUserConfig = SanitizedUserConfig.make(
         workspaceConfig.get<string>('syncRoot') ?? "./dist/",
-        workspaceConfig
-            .get<string>(`client.authToken`)
-            ?.replace(/^bearer/i, ``)
-            .trim() ?? '',
         workspaceConfig.get<boolean>('showPushSuccessNotification') ?? false,
+        workspaceConfig.get<boolean>('showSyncEnabledNotification') ?? true,
         workspaceConfig.get<boolean>('fileWatcher.enable') ?? false,
-        workspaceConfig.get<boolean>('fileWatcher.showEnabledNotification') ?? true,
         workspaceConfig.get<Array<string>>('fileWatcher.allowedFiletypes') ?? [],
         workspaceConfig.get<boolean>('fileWatcher.allowDeletingFiles') ?? false,
         workspaceConfig.get<number>('fileWatcher.port') ?? 12525,
         workspaceConfig.get<Array<string>>('fileWatcher.exclude') ?? [],
         workspaceConfig.get<boolean>('fileWatcher.verbose') ?? true,
         workspaceConfig.get<boolean>('fileWatcher.definitionFile.enabled') ?? false,
-        workspaceConfig.get<string>('fileWatcher.definitionFile.location') ?? "./NetScriptDefinitions.d.ts",
+        workspaceConfig.get<string>('fileWatcher.definitionFile.location') ?? "./NetscriptDefinitions.d.ts",
         workspaceConfig.get<boolean>('fileWatcher.pushAllOnConnection') ?? false,
     );
 
@@ -73,37 +65,4 @@ export function sanitizeUserConfig(): boolean {
 
 export function getSanitizedUserConfig(): SanitizedUserConfig {
     return globalSanitizedUserConfig;
-}
-
-export function baseWatchPath() {
-    let basePath = primaryWorkspaceRoot();
-    let scriptBase: string = globalSanitizedUserConfig.syncRoot;
-    if (scriptBase.indexOf('.') === 0 && scriptBase.indexOf('/') === 1)
-        scriptBase = scriptBase.slice(1);
-
-    let resolvedPath = resolve(basePath + scriptBase);
-    if (!existsSync(resolvedPath)) {
-        try {
-            mkdirSync(resolvedPath, { recursive: true });
-        } catch (err) {
-            if (isError(err) && err.code !== "EEXIST") {
-                console.log(`Failed to create watch folder '${resolvedPath}' (${err.code})`);
-                throw err;
-            }
-        }
-    }
-
-    return resolve(basePath + scriptBase);
-}
-
-export function baseWatchPaths() {
-    let scriptBase: string = globalSanitizedUserConfig.syncRoot;
-    if (scriptBase.indexOf('.') === 0 && scriptBase.indexOf('/') === 1)
-        scriptBase = scriptBase.slice(1);
-
-    return vscode.workspace.workspaceFolders
-        ?.map((value) => {
-            let resPath = resolve(value.uri.fsPath + scriptBase);
-            return realpathSync(resPath);
-        }).filter((path) => existsSync(path)) ?? [];
 }

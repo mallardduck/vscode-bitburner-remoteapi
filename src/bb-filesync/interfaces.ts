@@ -1,5 +1,3 @@
-import type { Stats } from "fs";
-
 export interface Message {
     jsonrpc: "2.0";
     method?: string;

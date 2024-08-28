@@ -3,18 +3,16 @@
 export class SanitizedUserConfig {
     constructor(
         public syncRoot: string,
-        public client: UserClientConfig,
-        public showFileWatcherEnabledNotification: boolean,
-        public filewatchConfig: UserFileWatcherConfig,
         public showPushSuccessNotification: boolean,
+        public showSyncEnabledNotification: boolean,
+        public filewatchConfig: UserFileWatcherConfig,
     ) {}
 
     static make(
         syncRoot: string,
-        authToken: string,
         showPushSuccessToast: boolean,
+        showSyncEnabledNotification: boolean,
         fileWatcherEnabled: boolean,
-        showFileWatchStartedToast: boolean,
         allowedFileTypes: Array<string>,
         allowDelete: boolean,
         port: number,
@@ -26,8 +24,8 @@ export class SanitizedUserConfig {
     ) {
         return new SanitizedUserConfig(
             syncRoot,
-            new UserClientConfig(authToken),
-            showFileWatchStartedToast,
+            showPushSuccessToast,
+            showSyncEnabledNotification,
             new UserFileWatcherConfig(
                 fileWatcherEnabled,
                 allowedFileTypes,
@@ -39,7 +37,6 @@ export class SanitizedUserConfig {
                 defFilePath,
                 pushAllOnConnection,
             ),
-            showPushSuccessToast,
         );
     }
 
@@ -53,12 +50,6 @@ export class SanitizedUserConfig {
             verboseLog: this.filewatchConfig.verbose,
         };
     }
-}
-
-export class UserClientConfig {
-    constructor (
-        public authToken: string,
-    ) {}
 }
 
 export class UserFileWatcherConfig {

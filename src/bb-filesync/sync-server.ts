@@ -1,13 +1,17 @@
 import * as vscode from 'vscode';
 
-import { default as signalInstance, Signal } from '../signals-ts';
+import { default as signalInstance, } from '../signals-ts';
 import { initFileWatcher, disableFileWatcher, isFileWatcherRunning, } from './file-watcher';
 import { globalWebSocketServer, startWebSocketServer, stopWebSocketServer } from './socket-server';
-import { globalSanitizedUserConfig, sanitizeUserConfig } from '../lib/config';
+import { getSanitizedUserConfig, sanitizeUserConfig } from '../lib/config';
 import { showToast, ToastType } from "../lib/ui";
 import { globalWebsocketServerIsAlive } from './networking/webSocketServerBuilder';
 
 let syncServerRunning: boolean = false;
+
+export function isSyncServerRunning() {
+    return syncServerRunning;
+}
 
 export function startSyncServer() {
     if (syncServerRunning) {
@@ -21,9 +25,9 @@ export function startSyncServer() {
     initFileWatcher();
     startWebSocketServer();
     syncServerRunning = true;
-    if (globalSanitizedUserConfig.showFileWatcherEnabledNotification) {
-        let rootSyncDir = globalSanitizedUserConfig.syncRoot;
-        let extensions = globalSanitizedUserConfig.filewatchConfig.allowedFiletypes.join(', ');
+    if (getSanitizedUserConfig().showSyncEnabledNotification) {
+        let rootSyncDir = getSanitizedUserConfig().syncRoot;
+        let extensions = getSanitizedUserConfig().filewatchConfig.allowedFiletypes.join(', ');
         let vscodePaths = vscode.workspace.workspaceFolders
             ?.map((ws) => `${ws.uri.fsPath}/${rootSyncDir}/**`)
             .join(', ');

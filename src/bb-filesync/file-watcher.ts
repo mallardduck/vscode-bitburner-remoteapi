@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
-import { mkdir, existsSync, statSync, Stats, realpath, realpathSync, } from "node:fs";
+import { statSync, Stats, realpathSync, } from "node:fs";
 import * as fg from "fast-glob";
 
-import { baseWatchPath, baseWatchPaths, getSanitizedUserConfig } from "../lib/config";
 import { isError } from "../lib/err";
 import { default as signalInstance, } from '../signals-ts';
 import { EventType } from './eventTypes';
 import { FileEvent } from './interfaces';
-import { realPcToGamePcPath, } from '../lib/paths';
+import { getSanitizedUserConfig } from '../lib/config';
+import { baseWatchPath, baseWatchPaths, realPcToGamePcPath } from '../lib/paths';
 
 let watchedFileList: Set<string> = new Set<string>;
 let watchedFileStats: Map<string, Stats> = new Map<string, Stats>;
@@ -30,9 +30,7 @@ export function initFileWatcher(): void {
     globalFileWatcher = vscode.workspace.createFileSystemWatcher(fullWatcherPathGlob);
     // Now build the callbacks that the file watcher responds to...
     globalFileWatcher.onDidCreate(function(eventUri) {
-        console.log("File Created: " + eventUri);
         const eventFsPath = eventUri.fsPath;
-        console.log(realpathSync(eventFsPath));
         if (!watchedFileList.has(eventFsPath)) {
             watchedFileList.add(eventFsPath);
             watchedFileStats.set(eventFsPath, statSync(eventFsPath));
@@ -83,10 +81,17 @@ function areStatsEqual(statA: Stats, statB: Stats|null): boolean {
             statA.ino === statB.ino;
 }
 
-export function createFileEventFromPath(fullPath: string): FileEvent {
+export function createFileEventFromPath(fullPath: string|vscode.Uri): FileEvent {
+    let uriIn: vscode.Uri;
+    if (typeof fullPath === "string")
+        uriIn = vscode.Uri.file(fullPath)
+    else
+        uriIn = fullPath
+
+    console.log(fullPath, uriIn)
     return {
-        realPath: fullPath,
-        gamePath: realPcToGamePcPath(vscode.Uri.parse(fullPath)),
+        realPath: fullPath.toString(),
+        gamePath: realPcToGamePcPath(uriIn),
     }
 }
 

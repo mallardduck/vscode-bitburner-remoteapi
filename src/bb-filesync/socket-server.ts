@@ -1,6 +1,6 @@
 import { RawData, WebSocketServer } from 'ws';
 
-import { Signal, default as signalInstance } from '../signals-ts';
+import { default as signalInstance } from '../signals-ts';
 import { setupSocket } from './networking/webSocketServerBuilder';
 import { messageHandler } from './networking/messageHandler';
 import {
@@ -32,10 +32,12 @@ export function startWebSocketServer() {
         if (filesyncConfig.definitionFileSync)
             tryFetchDefinitionFile();
         if (filesyncConfig.pushAllOnConnection) {
-            // TODO: this should actually be the exclusion here not filte types...
             // Our filewatcher is already only watching the specific file types we told it.
-            for (const path of getWatchedFilesList().entries())
-                signalInstance.emit(EventType.MessageSend, fileChangeEventToMsg(createFileEventFromPath(path[0])));
+            const watchedArray = Array.from(getWatchedFilesList());
+            for(let fsIdx in watchedArray) {
+                const fsPath = watchedArray[fsIdx];
+                signalInstance.emit(EventType.MessageSend, fileChangeEventToMsg(createFileEventFromPath(fsPath)));
+            }
         } else {
             // Upload missing files to the game.
             signalInstance.emit(EventType.MessageSend, requestFilenames());
